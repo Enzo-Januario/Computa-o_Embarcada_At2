@@ -1,28 +1,3 @@
-/*
- * ============================================================
- *  Lab 2 - Jogo da Memória com LEDs
- *  Etapa 3: Jogo com 4 LEDs, 4 botoes e contador de rodadas
- * ============================================================
- *
- *  Mapeamento de pinos:
- *    LED Azul      -> D8    |   Botao Azul (S1)      -> D5
- *    LED Verde     -> D9    |   Botao Verde (S2)     -> D4
- *    LED Amarelo   -> D10   |   Botao Amarelo (S3)   -> D3
- *    LED Vermelho  -> D11   |   Botao Vermelho (S4)  -> D2
- *
- *  Display de 7 segmentos:
- *    Segmento A -> D6
- *    Segmento B -> D7
- *    Segmento C -> D12
- *    Segmento D -> D13
- *    Segmento E -> A0
- *    Segmento F -> A1
- *    Segmento G -> A2
- *
- *  Para display de catodo comum (K no GND): HIGH acende.
- *  Para display de anodo comum (no 5V): trocar HIGH<->LOW.
- * ============================================================
- */
 
 #define NUM_CORES        4
 #define TAMANHO_MAXIMO   100
@@ -33,25 +8,21 @@ const int ledPins[NUM_CORES]   = {8, 9, 10, 11};
 const int botaoPins[NUM_CORES] = {5, 4, 3, 2};
 const char* nomeCores[NUM_CORES] = {"AZUL", "VERDE", "AMARELO", "VERMELHO"};
 
-// Display 7 segmentos: ordem A, B, C, D, E, F, G
 const int segPins[7] = {6, 7, 12, 13, A0, A1, A2};
 
-// Tabela de digitos 0-9 (catodo comum: 1 = aceso)
-//  segmentos:    A  B  C  D  E  F  G
 const byte digitos[10][7] = {
-  {1, 1, 1, 1, 1, 1, 0}, // 0
-  {0, 1, 1, 0, 0, 0, 0}, // 1
-  {1, 1, 0, 1, 1, 0, 1}, // 2
-  {1, 1, 1, 1, 0, 0, 1}, // 3
-  {0, 1, 1, 0, 0, 1, 1}, // 4
-  {1, 0, 1, 1, 0, 1, 1}, // 5
-  {1, 0, 1, 1, 1, 1, 1}, // 6
-  {1, 1, 1, 0, 0, 0, 0}, // 7
-  {1, 1, 1, 1, 1, 1, 1}, // 8
-  {1, 1, 1, 1, 0, 1, 1}  // 9
+  {1, 1, 1, 1, 1, 1, 0}, 
+  {0, 1, 1, 0, 0, 0, 0}, 
+  {1, 1, 0, 1, 1, 0, 1}, 
+  {1, 1, 1, 1, 0, 0, 1},
+  {0, 1, 1, 0, 0, 1, 1}, 
+  {1, 0, 1, 1, 0, 1, 1}, 
+  {1, 0, 1, 1, 1, 1, 1}, 
+  {1, 1, 1, 0, 0, 0, 0}, 
+  {1, 1, 1, 1, 1, 1, 1},
+  {1, 1, 1, 1, 0, 1, 1} 
 };
 
-// Tempos (em ms)
 const int TEMPO_LED_LIGADO   = 450;
 const int TEMPO_ENTRE_LEDS   = 200;
 const int TEMPO_ANTES_JOGAR  = 700;
@@ -69,18 +40,15 @@ void setup() {
     digitalWrite(ledPins[i], LOW);
   }
 
-  // Botoes
   for (int i = 0; i < NUM_CORES; i++) {
     pinMode(botaoPins[i], INPUT_PULLUP);
   }
 
-  // Display de 7 segmentos
   for (int i = 0; i < 7; i++) {
     pinMode(segPins[i], OUTPUT);
   }
   desligarDisplay();
 
-  // Semente aleatoria a partir de um pino analogico nao usado
   randomSeed(analogRead(A5));
 
   Serial.println("============================================");
@@ -98,14 +66,12 @@ void setup() {
 void loop() {
   rodada++;
 
-  // Mostra a rodada atual no display (limita ao digito 9)
   if (rodada <= 9) {
     mostrarDigito(rodada);
   } else {
     mostrarDigito(9);
   }
 
-  // Sorteia a proxima cor
   sequencia[rodada - 1] = random(0, NUM_CORES);
 
   Serial.println();
@@ -160,9 +126,6 @@ void loop() {
   }
 }
 
-// ============================================================
-//  Funcoes do jogo
-// ============================================================
 
 void iniciarJogo() {
   rodada = 0;
@@ -239,7 +202,6 @@ void animacaoErro() {
   }
 }
 
-// Animacao de vitoria: display piscando + LEDs em sequencia
 void animacaoVitoria() {
   for (int repeat = 0; repeat < 3; repeat++) {
     // Acende LEDs em sequencia
@@ -260,16 +222,12 @@ void animacaoVitoria() {
       delay(100);
     }
   }
-  // Acende todos os LEDs juntos no final
+ 
   for (int i = 0; i < NUM_CORES; i++) digitalWrite(ledPins[i], HIGH);
   mostrarDigito(0);
   delay(1500);
   for (int i = 0; i < NUM_CORES; i++) digitalWrite(ledPins[i], LOW);
 }
-
-// ============================================================
-//  Funcoes do display de 7 segmentos
-// ============================================================
 
 void mostrarDigito(int n) {
   if (n < 0 || n > 9) {
